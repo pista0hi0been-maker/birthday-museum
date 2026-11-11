@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>小さな祝福の美術館</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #141b29;
+      color: #f5e8cf;
+      font-family: "Yu Gothic", sans-serif;
+      text-align: center;
+    }
+
+    header {
+      padding: 65px 20px 35px;
+      background: linear-gradient(#27354c, #141b29);
+    }
+
+    .subtitle {
+      color: #d9bd83;
+      font-size: 13px;
+      letter-spacing: 3px;
+    }
+
+    h1 {
+      font-size: 32px;
+      margin: 15px 0;
+    }
+
+    .description {
+      color: #c2b9a9;
+      font-size: 14px;
+    }
+
+    .rooms {
+      margin: 30px 0;
+    }
+
+    button {
+      background: #29374c;
+      color: #f5e8cf;
+      border: 1px solid #b99a60;
+      border-radius: 6px;
+      padding: 12px 22px;
+      margin: 5px;
+      cursor: pointer;
+    }
+
+    button:hover,
+    button.active {
+      background: #b99a60;
+      color: #141b29;
+    }
+
+    .gallery {
+      max-width: 1000px;
+      margin: 30px auto 70px;
+      padding: 20px;
+      display: grid;
+      grid-template-columns:
+        repeat(auto-fit, minmax(230px, 1fr));
+      gap: 30px;
+    }
+
+    .artwork {
+      background: #283345;
+      padding: 15px;
+      border: 1px solid #75684c;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .artwork:hover {
+      transform: translateY(-6px);
+    }
+
+    .artwork img {
+      width: 100%;
+      height: 240px;
+      object-fit: contain;
+      background: #37445a;
+      border: 7px solid #b99a60;
+    }
+
+    .artwork h3 {
+      font-size: 16px;
+    }
+
+    .artist {
+      color: #c0b9ae;
+      font-size: 13px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 100;
+      padding: 25px;
+      overflow-y: auto;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      max-width: 800px;
+      width: 100%;
+      margin: auto;
+    }
+
+    .modal img {
+      max-width: 100%;
+      max-height: 65vh;
+      object-fit: contain;
+      border: 8px solid #b99a60;
+    }
+
+    .modal h2 {
+      margin-top: 20px;
+    }
+
+    .modal p {
+      line-height: 1.8;
+    }
+
+    .close {
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      font-size: 28px;
+      padding: 5px 15px;
+    }
+
+    footer {
+      padding: 30px;
+      color: #b8a987;
+      font-size: 12px;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 24px;
+      }
+
+      .gallery {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="subtitle">
+      THE BIRTHDAY EXHIBITION
+    </div>
+
+    <h1>小さな祝福の美術館</h1>
+
+    <p class="description">
+      あなたの生み出した世界へ、〇人からの贈り物。
+    </p>
+  </header>
+
+  <nav class="rooms">
+    <button id="room1" class="active"
+      onclick="showRoom(1)">
+      第1展示室
+    </button>
+
+    <button id="room2"
+      onclick="showRoom(2)">
+      第2展示室
+    </button>
+  </nav>
+
+  <main>
+    <div class="gallery" id="gallery"></div>
+  </main>
+
+  <div class="modal" id="modal"
+    onclick="closeModal()">
+
+    <button class="close"
+      onclick="closeModal()">
+      ×
+    </button>
+
+    <div class="modal-content"
+      onclick="event.stopPropagation()">
+
+      <img id="modalImage" alt="拡大した展示作品">
+
+      <h2 id="modalTitle"></h2>
+
+      <p id="modalArtist"></p>
+
+      <p id="modalMessage"></p>
+    </div>
+  </div>
+
+  <footer>
+    ✦ あなたに贈る、世界でひとつの美術館 ✦
+  </footer>
+
+  <script>
+    // 展示作品のデータ
+    const artworks = [
+      {
+        room: 1,
+        title: "大切な人への贈り物",
+        artist: "ゆうべさん",
+        image: "images/dyuube.jpg",
+        message: "お誕生日おめでとう！"
+      },
+      {
+        room: 1,
+        title: "大切な仲間の誕生日",
+        artist: "こゆきさん",
+        image: "images/dkoyuki.jpg",
+        message: "いつも楽しい交流をありがとう！"
+      },
+      {
+        room: 2,
+        title: "尊敬する主への感謝",
+        artist: "マスター",
+        image: "images/dmaster.jpg",
+        message: "これからもお願いいたします！"
+      }
+    ];
+
+    function showRoom(roomNumber) {
+      const gallery = document.getElementById("gallery");
+
+      gallery.innerHTML = "";
+
+      document.getElementById("room1")
+        .classList.toggle("active", roomNumber === 1);
+
+      document.getElementById("room2")
+        .classList.toggle("active", roomNumber === 2);
+
+      artworks.forEach((art, index) => {
+        if (art.room !== roomNumber) return;
+
+        const card = document.createElement("div");
+        card.className = "artwork";
+        card.tabIndex = 0;
+        card.setAttribute("role", "button");
+
+        const img = document.createElement("img");
+        img.src = art.image;
+        img.alt = art.title;
+
+        const title = document.createElement("h3");
+        title.textContent = art.title;
+
+        const artist = document.createElement("p");
+        artist.className = "artist";
+        artist.textContent = art.artist;
+
+        card.append(img, title, artist);
+
+        card.addEventListener("click", () => {
+          openModal(index);
+        });
+
+        card.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openModal(index);
+          }
+        });
+
+        gallery.appendChild(card);
+      });
+    }
+
+    function openModal(index) {
+      const art = artworks[index];
+
+      document.getElementById("modalImage").src = art.image;
+      document.getElementById("modalTitle").textContent = art.title;
+      document.getElementById("modalArtist").textContent =
+        "作者：" + art.artist;
+      document.getElementById("modalMessage").textContent =
+        art.message;
+
+      document.getElementById("modal").style.display = "flex";
+    }
+
+    function closeModal() {
+      document.getElementById("modal").style.display = "none";
+    }
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeModal();
+      }
+    });
+
+    // 最初に第1展示室を表示
+    showRoom(1);
+  </script>
+
+</body>
+</html>
